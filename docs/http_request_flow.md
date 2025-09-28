@@ -3,56 +3,104 @@
 ## 请求处理完整流程
 
 ```mermaid
-title HTTP请求处理流程（包含HEAD和OPTIONS请求）
-
 digraph G {
-    subgraph "客户端层"
-        A[用户/客户端] -->|发送HTTP请求| B[请求准备]
-        B --> C1[GET请求] 
-        B --> C2[POST请求]
-        B --> C3[PUT/PATCH/DELETE请求]
-        B --> C4[HEAD请求] 
-        B --> C5[OPTIONS请求] 
+    // 1. 客户端层
+    subgraph cluster_client {
+        label = "客户端层";
+        style = "filled,rounded";
+        fillcolor = "#f0f8ff";
+        
+        // 节点定义：ID + 显示标签
+        A [label="用户/客户端"];
+        B [label="请求准备"];
+        C1 [label="GET请求"];
+        C2 [label="POST请求"];
+        C3 [label="PUT/PATCH/DELETE请求"];
+        C4 [label="HEAD请求"];
+        C5 [label="OPTIONS请求"];
+        
+        // 边定义：ID 连接 + 标签（带引号）
+        A -> B [label="发送HTTP请求"];
+        B -> C1;
+        B -> C2;
+        B -> C3;
+        B -> C4;
+        B -> C5;
     }
 
-    subgraph "网络传输层"
-        C1 --> D[HTTP协议封装]
-        C2 --> D
-        C3 --> D
-        C4 --> D
-        C5 --> D
-        D --> E[网络传输]
-    end
-
-    subgraph "服务器处理层"
-        E --> F[Web服务器接收]
-        F --> G[WSGI/ASGI层]
-        G --> H[Flask应用]
-        H --> I[路由匹配]
+    // 2. 网络传输层
+    subgraph cluster_network {
+        label = "网络传输层";
+        style = "filled,rounded";
+        fillcolor = "#e6f7ff";
         
-        I -->|GET/POST等| J1[常规请求处理]
-        I -->|HEAD| J2[HEAD请求特殊处理]
-        I -->|OPTIONS| J3[OPTIONS请求特殊处理]
+        D [label="HTTP协议封装"];
+        E [label="网络传输"];
         
-        J1 --> K1[视图函数执行]
-        J2 --> K2[获取资源头信息]
-        J3 --> K3[返回支持的HTTP方法]
-        
-        K1 --> L[响应生成]
-        K2 --> L
-        K3 --> L
+        C1 -> D;
+        C2 -> D;
+        C3 -> D;
+        C4 -> D;
+        C5 -> D;
+        D -> E;
     }
 
-    subgraph "响应返回层"
-        L --> M[响应数据封装]
-        M --> N[网络传输]
-        N --> O[客户端接收]
-        O --> P[响应解析]
-        P --> Q[用户展示/处理]
+    // 3. 服务器处理层
+    subgraph cluster_server {
+        label = "服务器处理层";
+        style = "filled,rounded";
+        fillcolor = "#f0fff0";
+        
+        F [label="Web服务器接收"];
+        G [label="WSGI/ASGI层"];
+        H [label="Flask应用"];
+        I [label="路由匹配"];
+        J1 [label="常规请求处理"];
+        // HEAD 节点单独设置样式
+        J2 [label="HEAD请求特殊处理", style="fill:#f9f,stroke:#333,stroke-width:2px"];
+        // OPTIONS 节点单独设置样式
+        J3 [label="OPTIONS请求特殊处理", style="fill:#f9f,stroke:#333,stroke-width:2px"];
+        K1 [label="视图函数执行"];
+        K2 [label="获取资源头信息"];
+        K3 [label="返回支持的HTTP方法"];
+        L [label="响应生成"];
+        
+        E -> F;
+        F -> G;
+        G -> H;
+        H -> I;
+        
+        I -> J1 [label="GET/POST等"];
+        I -> J2 [label="HEAD"];
+        I -> J3 [label="OPTIONS"];
+        
+        J1 -> K1;
+        J2 -> K2;
+        J3 -> K3;
+        
+        K1 -> L;
+        K2 -> L;
+        K3 -> L;
     }
 
-    style J2 fill:#f9f,stroke:#333,stroke-width:2px
-    style J3 fill:#f9f,stroke:#333,stroke-width:2px
+    // 4. 响应返回层
+    subgraph cluster_response {
+        label = "响应返回层";
+        style = "filled,rounded";
+        fillcolor = "#fff8f0";
+        
+        M [label="响应数据封装"];
+        N [label="网络传输"];
+        O [label="客户端接收"];
+        P [label="响应解析"];
+        Q [label="用户展示/处理"];
+        
+        L -> M;
+        M -> N;
+        N -> O;
+        O -> P;
+        P -> Q;
+    }
 }
 ```
 
